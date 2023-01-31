@@ -16,7 +16,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: MyHomePage(),
+      home: MyHomePage(),//Home page is our first page
     );
   }
 }
@@ -69,7 +69,7 @@ class MyHomeState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Event Calender", textAlign: TextAlign.center,),
+        title: Text("Event Calendar", textAlign: TextAlign.center,),
 
       ),
 
