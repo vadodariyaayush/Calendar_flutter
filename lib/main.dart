@@ -1,4 +1,7 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:table_calendar/table_calendar.dart';
 
 void main() {
@@ -32,8 +35,11 @@ class MyHomeState extends State<MyHomePage> {
   CalendarFormat _calendarFormat = CalendarFormat.month;
   DateTime _focusedDay = DateTime.now();
   DateTime? _selectedDay; //date select by user
-  var eventTitle = TextEditingController();
-  var eventDescription = TextEditingController();
+  var eventTitleController = TextEditingController();
+  var eventDescriptionController = TextEditingController();
+  Map<String,List>mySelecedEvents={};
+
+  String imageLink ="https://images.unsplash.com/photo-1503023345310-bd7c1de61c7d?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxzZWFyY2h8Mnx8aHVtYW58ZW58MHx8MHx8&w=1000&q=80";
 
   @override
   void initState() {
@@ -49,19 +55,64 @@ class MyHomeState extends State<MyHomePage> {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  TextField(controller: eventTitle,
+                  TextField(controller: eventTitleController,
                     decoration: InputDecoration(
                       label: Text("Title"),
                     ),),
 
-                  TextField(controller: eventDescription,
+                  TextField(controller: eventDescriptionController,
                     decoration:InputDecoration(
                       label: Text("Description")
                     ),
                   ),
                 ],
+
               ),
-            ));
+              actions: [
+                TextButton(onPressed: ()=> Navigator.pop(context), child: const Text("cancel")),
+                TextButton(onPressed: (){
+                  if(eventTitleController.text.isEmpty&&eventTitleController.text.isEmpty){
+                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                          content: Text("Add title and Description"),
+                          duration: Duration(seconds: 2),
+                      ),
+                      );
+                      return;
+                  }
+                  else{
+
+                    if(mySelecedEvents[DateFormat('yyyy-mm-dd').format(_selectedDay!)] != null){
+
+                      mySelecedEvents[DateFormat('yyyy-mm-dd').format(_selectedDay!)]
+                          ?.add({
+                        "eventTitle":eventTitleController.text,
+                          "eventDescp":eventTitleController.text,
+                          });
+                      
+
+                    }else{
+                        mySelecedEvents[DateFormat('yyyy-mm-dd')
+                            .format(_selectedDay!)] = [
+                              {
+                                "eventTitle": eventTitleController.text,
+                                "eventDescp": eventDescriptionController.text,
+                              }
+                        ];
+                    }
+                    
+                    print("New event for backend devloper ${json.encode(mySelecedEvents)}");
+                    
+                    
+
+                    ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                            content:Text("Event successfully Added") ));
+                    Navigator.pop(context);
+                  }
+                }, child: const Text("Add Event"))
+              ],
+            )
+    );
   }
 
 
@@ -126,7 +177,8 @@ class MyHomeState extends State<MyHomePage> {
             },
 
 
-          )
+          ),
+
         ],
       ),
 
