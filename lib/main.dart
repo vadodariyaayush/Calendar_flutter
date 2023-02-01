@@ -37,13 +37,23 @@ class MyHomeState extends State<MyHomePage> {
   DateTime? _selectedDay; //date select by user
   var eventTitleController = TextEditingController();
   var eventDescriptionController = TextEditingController();
-  Map<String,List>mySelecedEvents={};
-
-  String imageLink ="https://images.unsplash.com/photo-1503023345310-bd7c1de61c7d?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxzZWFyY2h8Mnx8aHVtYW58ZW58MHx8MHx8&w=1000&q=80";
+  Map<String,List>mySelectedEvents={};
 
   @override
   void initState() {
     _selectedDay = _focusedDay;
+  }
+
+
+
+  List _listOFDayEvents(DateTime dateTime){
+    if(mySelectedEvents[DateFormat('yyyy-mm-dd').format(dateTime)] != null){
+        return mySelectedEvents[DateFormat('yyyy-mm-dd').format(dateTime)]!;
+    }
+    else{
+      return[];
+    }
+
   }
 
   _showAddEventDialog() async {
@@ -81,26 +91,30 @@ class MyHomeState extends State<MyHomePage> {
                   }
                   else{
 
-                    if(mySelecedEvents[DateFormat('yyyy-mm-dd').format(_selectedDay!)] != null){
+                    setState(() {
+                      if(mySelectedEvents[DateFormat('yyyy-mm-dd').format(_selectedDay!)] != null){
 
-                      mySelecedEvents[DateFormat('yyyy-mm-dd').format(_selectedDay!)]
-                          ?.add({
-                        "eventTitle":eventTitleController.text,
-                          "eventDescp":eventTitleController.text,
-                          });
-                      
+                        mySelectedEvents[DateFormat('yyyy-mm-dd').format(_selectedDay!)]
+                            ?.add({
+                          "eventTitle":eventTitleController.text,
+                          "eventDesc":eventDescriptionController.text,
+                        });
 
-                    }else{
-                        mySelecedEvents[DateFormat('yyyy-mm-dd')
+
+                      }else{
+                        mySelectedEvents[DateFormat('yyyy-mm-dd')
                             .format(_selectedDay!)] = [
-                              {
-                                "eventTitle": eventTitleController.text,
-                                "eventDescp": eventDescriptionController.text,
-                              }
+                          {
+                            "eventTitle": eventTitleController.text,
+                            "eventDesc": eventDescriptionController.text,
+                          }
                         ];
-                    }
+                      }
+                    });
                     
-                    print("New event for backend devloper ${json.encode(mySelecedEvents)}");
+                    print("New event for backend devloper ${json.encode(mySelectedEvents)}");
+                    eventTitleController.clear();
+                    eventDescriptionController.clear();
                     
                     
 
@@ -110,7 +124,7 @@ class MyHomeState extends State<MyHomePage> {
                     Navigator.pop(context);
                   }
                 }, child: const Text("Add Event"))
-              ],
+              ],//action
             )
     );
   }
@@ -169,18 +183,31 @@ class MyHomeState extends State<MyHomePage> {
 
             onFormatChanged: (abc) {
               if (_calendarFormat != abc) {
-                _calendarFormat = abc;
                 setState(() {
-
+                  _calendarFormat = abc;
                 });
               }
             },
 
+            onPageChanged: (focusedDay){
+              _focusedDay=focusedDay;
+            },
 
+            eventLoader: _listOFDayEvents,
+          ),
+
+          ..._listOFDayEvents(_selectedDay!).map(
+                  (mySelectedEvents) => ListTile(
+                   leading: const Icon(Icons.done,color: Colors.teal),
+                   title: Text("Event Title : ${mySelectedEvents['eventTitle']}"),
+                    subtitle: Text("Event Description : ${mySelectedEvents['eventDesc']}"),
+                  ),
           ),
 
         ],
       ),
+
+
 
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
       floatingActionButton: FloatingActionButton.extended(
